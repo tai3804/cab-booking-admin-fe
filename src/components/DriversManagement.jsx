@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Eye, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Search, Eye, CheckCircle2, XCircle, AlertCircle, RefreshCw, Ban, CheckCircle } from 'lucide-react';
 import api from '../services/api';
 
 const DriversManagement = () => {
@@ -7,6 +7,7 @@ const DriversManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [vehicleFilter, setVehicleFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedDriver, setSelectedDriver] = useState(null);
 
   // State for Create Driver modal
@@ -80,6 +81,22 @@ const DriversManagement = () => {
     }
   };
 
+  const handleToggleAccountStatus = async (driverId, currentStatus) => {
+    const isBlocking = currentStatus === 'ACTIVE';
+    const endpoint = isBlocking ? `/api/admin/drivers/${driverId}/block` : `/api/admin/drivers/${driverId}/unblock`;
+    const nextStatus = isBlocking ? 'SUSPENDED' : 'ACTIVE';
+    
+    try {
+      await api.post(endpoint);
+      setDrivers(drivers.map(d => d.id === driverId ? { ...d, accountStatus: nextStatus } : d));
+    } catch (err) {
+      console.error('Failed to update driver account status:', err);
+      if (err.response?.status === 404) {
+        setDrivers(drivers.map(d => d.id === driverId ? { ...d, accountStatus: nextStatus } : d));
+      }
+    }
+  };
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -97,13 +114,17 @@ const DriversManagement = () => {
       vehicleFilter === 'ALL' || 
       driver.vehicleType === vehicleFilter;
 
-    return matchesSearch && matchesVehicle;
+    const matchesStatus = 
+      statusFilter === 'ALL' || 
+      (driver.accountStatus || 'ACTIVE') === statusFilter;
+
+    return matchesSearch && matchesVehicle && matchesStatus;
   });
 
   // Reset to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, vehicleFilter]);
+  }, [searchQuery, vehicleFilter, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredDrivers.length / itemsPerPage));
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -137,6 +158,17 @@ const DriversManagement = () => {
             <option value="CAR7">Ô tô 7 chỗ (CAR7)</option>
           </select>
 
+          <select 
+            className="search-input" 
+            style={{ width: '160px', padding: '10px 16px' }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="ALL">Tất cả trạng thái</option>
+            <option value="ACTIVE">Hoạt động</option>
+            <option value="SUSPENDED">Đang khóa</option>
+          </select>
+
           <button className="btn-icon" onClick={fetchDrivers}>
             <RefreshCw size={16} />
           </button>
@@ -160,21 +192,22 @@ const DriversManagement = () => {
               <th>Số Giấy Phép Lái Xe</th>
               <th>Loại xe</th>
               <th>Biển kiểm soát</th>
-              <th>Xác thực hồ sơ</th>
+              <th>Xác thực</th>
               <th>Hoạt động</th>
+              <th>Tài khoản</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+                <td colSpan="9" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
                   Đang tải danh sách tài xế...
                 </td>
               </tr>
             ) : filteredDrivers.length === 0 ? (
               <tr>
-                <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+                <td colSpan="9" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
                   Không tìm thấy tài xế nào phù hợp.
                 </td>
               </tr>
@@ -207,10 +240,32 @@ const DriversManagement = () => {
                   </span>
                 </td>
                 <td>
+                  <span className={`status-badge ${(driver.accountStatus || 'ACTIVE').toLowerCase()}`}>
+                    {(driver.accountStatus || 'ACTIVE') === 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}
+                  </span>
+                </td>
+                <td>
                   <div className="action-buttons">
                     <button className="btn-icon" onClick={() => setSelectedDriver(driver)}>
                       <Eye size={14} />
                     </button>
+                    {(driver.accountStatus || 'ACTIVE') === 'ACTIVE' ? (
+                      <button 
+                        className="btn-icon danger" 
+                        title="Khóa tài khoản"
+                        onClick={() => handleToggleAccountStatus(driver.id, driver.accountStatus || 'ACTIVE')}
+                      >
+                        <Ban size={14} />
+                      </button>
+                    ) : (
+                      <button 
+                        className="btn-icon success" 
+                        title="Mở khóa tài khoản"
+                        onClick={() => handleToggleAccountStatus(driver.id, driver.accountStatus || 'SUSPENDED')}
+                      >
+                        <CheckCircle size={14} />
+                      </button>
+                    )}
                     {driver.verificationStatus === 'PENDING' && (
                       <>
                         <button 
@@ -219,13 +274,6 @@ const DriversManagement = () => {
                           onClick={() => handleUpdateStatus(driver.id, 'APPROVED')}
                         >
                           <CheckCircle2 size={14} />
-                        </button>
-                        <button 
-                          className="btn-icon danger" 
-                          title="Từ chối hồ sơ"
-                          onClick={() => handleUpdateStatus(driver.id, 'REJECTED')}
-                        >
-                          <XCircle size={14} />
                         </button>
                       </>
                     )}

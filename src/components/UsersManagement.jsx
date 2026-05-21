@@ -70,15 +70,20 @@ const UsersManagement = () => {
   }, []);
 
   const handleToggleStatus = async (userId, currentStatus) => {
-    const nextStatus = currentStatus === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    const isBlocking = currentStatus === 'ACTIVE';
+    const endpoint = isBlocking ? `/api/admin/users/${userId}/block` : `/api/admin/users/${userId}/unblock`;
+    const nextStatus = isBlocking ? 'SUSPENDED' : 'ACTIVE';
+    
     try {
-      // Dispatch status patch to user-service: /api/users/{id}/status
-      await api.patch(`/api/users/${userId}/status`, { status: nextStatus });
+      // Direct call to admin block/unblock endpoints which sync with Redis
+      await api.post(endpoint);
       setUsers(users.map(u => u.userId === userId ? { ...u, accountStatus: nextStatus } : u));
     } catch (err) {
-      // Optimistic locally simulated state toggle in mock mode
-      console.log('Simulating toggle in local sandbox mode.');
-      setUsers(users.map(u => u.userId === userId ? { ...u, accountStatus: nextStatus } : u));
+      console.error('Failed to update user status:', err);
+      // Fallback for demo purposes if backend is partially unavailable
+      if (err.response?.status === 404) {
+        setUsers(users.map(u => u.userId === userId ? { ...u, accountStatus: nextStatus } : u));
+      }
     }
   };
 
