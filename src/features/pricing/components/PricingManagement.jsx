@@ -8,10 +8,10 @@ const PricingManagement = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Tab Bar + Add Button */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 p-1.5 bg-surface border border-border-light rounded-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex items-center gap-1.5 p-1.5 bg-white border border-border-light rounded-2xl shadow-sm">
           <button
             onClick={() => setActiveTab('configs')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer ${
@@ -38,7 +38,7 @@ const PricingManagement = () => {
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className={`flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-xl shadow-accent hover:shadow-accent-hover transition-all duration-200 cursor-pointer ${
+          className={`flex items-center justify-center gap-2 px-5 py-3 text-white text-sm font-semibold rounded-2xl shadow-accent hover:shadow-accent-hover transition-all duration-200 cursor-pointer ${
             activeTab === 'configs'
               ? 'bg-accent-primary hover:bg-accent-hover'
               : 'bg-status-warning hover:bg-status-warning/90'

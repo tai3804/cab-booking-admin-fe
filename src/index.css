@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,7 +10,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
   }
 
   html {
@@ -21,6 +21,7 @@
     @apply bg-surface-base text-text-primary min-h-screen;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   #root {
@@ -36,17 +37,18 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.92);
     border-radius: 99px;
+    border: 1px solid rgba(14, 165, 233, 0.40);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(197, 160, 89, 0.35);
+    background: rgba(14, 165, 233, 0.35);
   }
 
   /* ─── Text selection ─── */
   ::selection {
-    background: rgba(197, 160, 89, 0.2);
-    color: #F3F4F6;
+    background: rgba(14, 165, 233, 0.25);
+    color: #FFFFFF;
   }
 
   /* ─── Focus visible ─── */
@@ -96,9 +98,94 @@
 
 /* ─── Utility overrides ─── */
 @layer utilities {
+  /* Force a global light surface/text palette even if stale Tailwind output is cached */
+  .bg-surface,
+  .bg-surface-base,
+  .bg-surface-elevated,
+  .bg-surface-active {
+    background-color: #FFFFFF !important;
+  }
+
+  .text-text-primary {
+    color: #0F172A !important;
+  }
+
+  .text-text-secondary {
+    color: #1F2937 !important;
+  }
+
+  .text-text-muted {
+    color: #4B5563 !important;
+  }
+
+  .placeholder\:text-text-muted::placeholder {
+    color: #6B7280 !important;
+    opacity: 1 !important;
+  }
+
+  .border-border-light {
+    border-color: rgba(17, 24, 39, 0.10) !important;
+  }
+
+  .border-border-medium {
+    border-color: rgba(17, 24, 39, 0.18) !important;
+  }
+
+  /* Force primary theme accent to sky blue across stale Tailwind sessions */
+  .bg-accent-primary,
+  .bg-status-warning {
+    background-color: #0EA5E9 !important;
+  }
+
+  .text-accent-primary,
+  .text-status-warning {
+    color: #0284C7 !important;
+  }
+
+  .text-accent-hover {
+    color: #38BDF8 !important;
+  }
+
+  .border-accent-primary,
+  .border-status-warning {
+    border-color: #0EA5E9 !important;
+  }
+
+  .hover\:bg-accent-hover:hover,
+  .hover\:bg-status-warning\/90:hover {
+    background-color: #38BDF8 !important;
+  }
+
+  .hover\:text-accent-hover:hover {
+    color: #38BDF8 !important;
+  }
+
+  /* Force form focus state to neutral dark border, remove accent/yellow overlays */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: rgba(17, 24, 39, 0.35) !important;
+    --tw-ring-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .focus\:border-accent-primary\/50:focus,
+  .focus\:border-status-warning\/50:focus,
+  .focus\:border-status-danger\/60:focus {
+    border-color: rgba(17, 24, 39, 0.35) !important;
+  }
+
+  .focus\:ring-accent-primary\/20:focus,
+  .focus\:ring-accent-primary\/25:focus,
+  .focus\:ring-status-warning\/20:focus,
+  .focus\:ring-status-danger\/20:focus {
+    --tw-ring-color: transparent !important;
+    box-shadow: none !important;
+  }
+
   /* Zebra striping for tables */
   .table-row-zebra:nth-child(even) {
-    background: rgba(255, 255, 255, 0.012);
+    background: rgba(255, 255, 255, 0.96);
   }
 
   /* Hide scrollbar but keep functionality */
@@ -120,7 +207,7 @@
 
   /* Luxury metallic text gradient */
   .text-luxury {
-    background: linear-gradient(135deg, #F3F4F6 0%, #D4AF37 50%, #C5A059 100%);
+    background: linear-gradient(135deg, #FFFFFF 0%, #BAE6FD 50%, #7DD3FC 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

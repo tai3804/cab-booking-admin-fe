@@ -34,7 +34,7 @@ const Sidebar = () => {
     <>
       {/* Mobile overlay */}
       <div
-        className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-white/80 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${
           isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
         onClick={() => setIsCollapsed(true)}
@@ -44,13 +44,13 @@ const Sidebar = () => {
       <aside
         className={`
           fixed lg:relative z-50 h-screen flex flex-col
-          bg-surface border-r border-border-light
+          bg-surface border-r border-border-light shadow-card
           transition-all duration-300 ease-in-out
           ${isCollapsed ? 'w-[72px]' : 'w-[260px]'}
         `}
       >
         {/* Logo & Collapse Toggle */}
-        <div className="flex items-center justify-between p-5 border-b border-border-light">
+        <div className="flex items-center justify-between p-5 border-b border-border-light bg-gradient-to-r from-accent-primary/5 to-transparent">
           {/* Logo */}
           <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'w-full justify-center' : ''}`}>
             <div className="w-9 h-9 rounded-lg bg-accent-primary/10 border border-accent-primary/20 flex items-center justify-center flex-shrink-0">
@@ -80,18 +80,18 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 py-5 px-3 space-y-1.5 overflow-y-auto">
           {menuItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) => `
-                flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm
+                flex items-center gap-3 px-3.5 py-3 rounded-xl font-medium text-sm
                 transition-all duration-200 cursor-pointer group relative
                 ${isCollapsed ? 'justify-center' : ''}
                 ${
                   isActive
-                    ? 'bg-accent-muted text-accent-hover border border-border-active/60'
+                    ? 'bg-sky-100 text-sky-700 border border-sky-200 shadow-sm'
                     : 'text-text-secondary border border-transparent hover:bg-surface-elevated hover:text-text-primary'
                 }
               `}
@@ -116,18 +116,18 @@ const Sidebar = () => {
         </nav>
 
         {/* Footer: Profile Card + Logout */}
-        <div className={`p-3 border-t border-border-light space-y-2 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
+        <div className={`p-3 border-t border-border-light bg-gradient-to-t from-surface-active/40 to-transparent space-y-2 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
           {/* Profile Card */}
-          <div className={`flex items-center gap-3 p-3 rounded-lg bg-surface-elevated ${isCollapsed ? 'w-12 h-12 justify-center' : ''}`}>
-            <div className="w-9 h-9 rounded-full bg-accent-muted border border-accent-primary/20 flex items-center justify-center font-bold text-accent-hover text-sm flex-shrink-0">
+          <div className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border border-border-light bg-white shadow-sm ${isCollapsed ? 'w-12 h-12 justify-center px-0 py-0' : ''}`}>
+            <div className="w-9 h-9 rounded-full bg-accent-primary/10 border border-accent-primary/25 flex items-center justify-center font-semibold text-accent-primary text-sm flex-shrink-0">
               {currentUser?.fullName?.charAt(0) || 'A'}
             </div>
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-text-primary truncate">
+                <p className="text-sm font-semibold text-text-primary truncate leading-tight">
                   {currentUser?.fullName || 'System Admin'}
                 </p>
-                <p className="text-[10px] text-text-muted uppercase tracking-widest">
+                <p className="text-[10px] text-text-muted uppercase tracking-[0.14em] mt-0.5">
                   {currentUser?.role || 'ADMIN'}
                 </p>
               </div>
@@ -138,10 +138,10 @@ const Sidebar = () => {
           <button
             onClick={handleLogout}
             className={`
-              flex items-center justify-center gap-2.5 w-full py-2.5 rounded-lg
-              bg-surface-elevated border border-border-light
+              flex items-center justify-center gap-2.5 w-full py-2.5 rounded-xl
+              bg-white border border-border-light shadow-sm
               text-text-secondary font-semibold text-sm
-              hover:bg-status-danger-bg hover:text-status-danger hover:border-status-danger/20
+              hover:bg-surface-elevated hover:text-text-primary hover:border-border-medium
               transition-all duration-200 cursor-pointer
               ${isCollapsed ? 'w-12 h-12 px-0' : 'px-3'}
             `}

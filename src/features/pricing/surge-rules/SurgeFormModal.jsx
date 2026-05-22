@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Pencil, AlertTriangle } from 'lucide-react';
 import FormField from '../shared/FormField';
 
@@ -19,6 +19,24 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
   });
   const [fieldErrors, setFieldErrors] = useState({});
 
+  useEffect(() => {
+    if (!isOpen) return;
+    setForm({
+      zoneId: data?.zoneId || '',
+      zoneName: data?.zoneName || '',
+      surgeMultiplier: data?.surgeMultiplier ?? 1.0,
+      latitude: data?.latitude ?? '',
+      longitude: data?.longitude ?? '',
+      radiusKm: data?.radiusKm ?? '',
+      activeDrivers: data?.activeDrivers ?? '',
+      pendingRides: data?.pendingRides ?? '',
+      minMultiplier: data?.minMultiplier ?? '',
+      maxMultiplier: data?.maxMultiplier ?? '',
+      source: data?.source || 'MANUAL',
+    });
+    setFieldErrors({});
+  }, [isOpen, data, mode]);
+
   const validate = (f) => {
     const errs = {};
     const m = parseFloat(f.surgeMultiplier);
@@ -38,7 +56,7 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-md bg-surface border border-border-light rounded-2xl shadow-card-hover animate-scale-up overflow-hidden">
         <div className="gold-divider" />
         <div className="flex items-center justify-between p-6 border-b border-border-light">

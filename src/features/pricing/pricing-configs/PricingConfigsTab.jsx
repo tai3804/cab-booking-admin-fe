@@ -16,6 +16,7 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
   const [editData, setEditData] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
+  const [statsRefreshKey, setStatsRefreshKey] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const fetchConfigsRef = useRef(null);
@@ -33,12 +34,16 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
     return () => { fetchConfigsRef.current = null; };
   }, []);
 
-  const handleRefresh = () => fetchConfigsRef.current?.();
+  const handleRefresh = () => {
+    fetchConfigsRef.current?.();
+    setStatsRefreshKey((k) => k + 1);
+  };
 
   const handleToggle = async (config) => {
     try {
       const res = await api.patch(`/api/admin/pricing-configs/${config.id}/toggle`);
       setConfigs(configs.map(c => c.id === config.id ? res.data.data : c));
+      setStatsRefreshKey((k) => k + 1);
     } catch {
       setConfigs(configs.map(c => c.id === config.id ? { ...c, active: !c.active } : c));
     }
@@ -55,6 +60,7 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
     try {
       await api.delete(`/api/admin/pricing-configs/${config.id}`);
       setConfigs(configs.filter(c => c.id !== config.id));
+      setStatsRefreshKey((k) => k + 1);
     } catch {
       handleRefresh();
     }
@@ -81,6 +87,7 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
       setIsEditModalOpen(false);
       setEditData(null);
       fetchConfigsRef.current();
+      setStatsRefreshKey((k) => k + 1);
     } catch (err) {
       if (err.response?.status === 409) {
         setFormError(`${form.vehicleType} đã tồn tại. Không thể tạo trùng loại xe.`);
@@ -105,11 +112,11 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
   const currentItems = filteredConfigs.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <div className="space-y-5">
-      <PricingStatsBar />
+    <div className="space-y-6">
+      <PricingStatsBar refreshKey={statsRefreshKey} />
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white border border-border-light rounded-2xl p-3 shadow-sm">
         <div className="relative flex-1 max-w-sm">
           <Search size={15} strokeWidth={2} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
           <input
@@ -121,7 +128,7 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
           />
         </div>
         <select
-          className="px-4 py-2.5 bg-surface border border-border-light rounded-xl text-sm text-text-secondary focus:outline-none focus:border-accent-primary/50 cursor-pointer min-w-[160px]"
+          className="px-4 py-2.5 bg-surface border border-border-light rounded-xl text-sm text-text-secondary focus:outline-none focus:border-accent-primary/50 cursor-pointer min-w-[180px]"
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
         >
