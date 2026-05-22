@@ -6,6 +6,8 @@ import SurgeDetailModal from './SurgeDetailModal';
 import SurgeFormModal from './SurgeFormModal';
 import { PricingStatsBar } from '../shared';
 
+const AUTO_REFRESH_INTERVAL_MS = 15000;
+
 const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,16 +23,29 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
   const fetchRulesRef = useRef(null);
 
   useEffect(() => {
-    fetchRulesRef.current = () => {
-      let cancelled = false;
-      setLoading(true);
-      api.get('/api/admin/surge-rules')
-        .then(res => { if (!cancelled) setRules(res.data.data || []); })
-        .catch(() => { if (!cancelled) setRules([]); })
-        .finally(() => { if (!cancelled) setLoading(false); });
+    fetchRulesRef.current = async (options = {}) => {
+      const { silent = false } = options;
+      if (!silent) setLoading(true);
+      try {
+        const res = await api.get('/api/admin/surge-rules');
+        setRules(res.data.data || []);
+      } catch {
+        if (!silent) setRules([]);
+      } finally {
+        if (!silent) setLoading(false);
+      }
     };
+
     fetchRulesRef.current();
-    return () => { fetchRulesRef.current = null; };
+
+    const intervalId = setInterval(() => {
+      fetchRulesRef.current?.({ silent: true });
+    }, AUTO_REFRESH_INTERVAL_MS);
+
+    return () => {
+      clearInterval(intervalId);
+      fetchRulesRef.current = null;
+    };
   }, []);
 
   const handleRefresh = () => {
@@ -48,7 +63,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
     if (!confirm(`Xóa quy tắt surge cho zone "${rule.zoneId}"?`)) return;
     try {
       await api.delete(`/api/admin/surge-rules/${rule.id}`);
-      setRules(rules.filter(r => r.id !== rule.id));
+      setRules(rules.filter((r) => r.id !== rule.id));
       setStatsRefreshKey((k) => k + 1);
     } catch {
       handleRefresh();
@@ -59,18 +74,17 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
     setFormLoading(true);
     setFormError('');
     const payload = {
-      zoneId: form.zoneId,
+      zoneId: isEditModalOpen ? form.zoneId : null,
       zoneName: form.zoneName,
       surgeMultiplier: form.surgeMultiplier,
       latitude: form.latitude,
       longitude: form.longitude,
       radiusKm: form.radiusKm,
-      activeDrivers: form.activeDrivers,
-      pendingRides: form.pendingRides,
       minMultiplier: form.minMultiplier,
       maxMultiplier: form.maxMultiplier,
       source: form.source,
     };
+
     try {
       if (isEditModalOpen && editData) {
         await api.put(`/api/admin/surge-rules/${editData.id}`, payload);
@@ -80,7 +94,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
       onCloseCreateModal?.();
       setIsEditModalOpen(false);
       setEditData(null);
-      fetchRulesRef.current();
+      fetchRulesRef.current?.();
       setStatsRefreshKey((k) => k + 1);
     } catch (err) {
       if (err.response?.status === 409) {
@@ -93,7 +107,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
     }
   };
 
-  const filteredRules = rules.filter(rule => {
+  const filteredRules = rules.filter((rule) => {
     const q = searchQuery.toLowerCase();
     return (rule.zoneId || '').toLowerCase().includes(q) || (rule.zoneName || '').toLowerCase().includes(q);
   });
@@ -107,7 +121,6 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
     <div className="space-y-5">
       <PricingStatsBar refreshKey={statsRefreshKey} />
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search size={15} strokeWidth={2} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
@@ -116,7 +129,10 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
             placeholder="Tìm theo zone ID hoặc tên khu vực..."
             className="w-full pl-10 pr-4 py-2.5 bg-surface border border-border-light rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-status-warning/50 focus:ring-1 focus:ring-status-warning/20 transition-all"
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
           />
         </div>
         <button
@@ -128,7 +144,6 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
         </button>
       </div>
 
-      {/* Table */}
       <SurgeRulesTable
         rules={currentItems}
         loading={loading}
@@ -142,11 +157,13 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
         onDelete={handleDelete}
       />
 
-      {/* Modals */}
       <SurgeDetailModal rule={selectedRule} onClose={() => setSelectedRule(null)} />
       <SurgeFormModal
         isOpen={showCreateModal}
-        onClose={() => { onCloseCreateModal?.(); setFormError(''); }}
+        onClose={() => {
+          onCloseCreateModal?.();
+          setFormError('');
+        }}
         mode="create"
         data={null}
         onSubmit={handleRuleSubmit}
@@ -155,7 +172,11 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
       />
       <SurgeFormModal
         isOpen={isEditModalOpen}
-        onClose={() => { setIsEditModalOpen(false); setEditData(null); setFormError(''); }}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditData(null);
+          setFormError('');
+        }}
         mode="edit"
         data={editData}
         onSubmit={handleRuleSubmit}

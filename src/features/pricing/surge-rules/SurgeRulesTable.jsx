@@ -35,7 +35,7 @@ const ActionButtons = ({ rule, onView, onEdit, onDelete }) => (
 );
 
 const COLUMNS = ['Zone ID', 'Tên khu vực', 'Hệ số Surge', 'Tài xế hoạt động', 'Chuyến chờ', 'Nguồn', 'Cập nhật', ''];
-const COL_SPAN = 7;
+const COL_SPAN = 8;
 
 const SurgeRulesTable = ({
   rules,
