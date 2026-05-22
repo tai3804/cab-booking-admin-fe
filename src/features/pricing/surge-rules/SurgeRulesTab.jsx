@@ -15,6 +15,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
   const [editData, setEditData] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
+  const [statsRefreshKey, setStatsRefreshKey] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const fetchRulesRef = useRef(null);
@@ -32,7 +33,10 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
     return () => { fetchRulesRef.current = null; };
   }, []);
 
-  const handleRefresh = () => fetchRulesRef.current?.();
+  const handleRefresh = () => {
+    fetchRulesRef.current?.();
+    setStatsRefreshKey((k) => k + 1);
+  };
 
   const handleEdit = (rule) => {
     setEditData(rule);
@@ -45,6 +49,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
     try {
       await api.delete(`/api/admin/surge-rules/${rule.id}`);
       setRules(rules.filter(r => r.id !== rule.id));
+      setStatsRefreshKey((k) => k + 1);
     } catch {
       handleRefresh();
     }
@@ -76,6 +81,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
       setIsEditModalOpen(false);
       setEditData(null);
       fetchRulesRef.current();
+      setStatsRefreshKey((k) => k + 1);
     } catch (err) {
       if (err.response?.status === 409) {
         setFormError(`Zone "${form.zoneId}" đã tồn tại. Không thể tạo trùng zone.`);
@@ -99,7 +105,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
 
   return (
     <div className="space-y-5">
-      <PricingStatsBar />
+      <PricingStatsBar refreshKey={statsRefreshKey} />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

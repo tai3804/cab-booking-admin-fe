@@ -12,11 +12,15 @@ import ProtectedRoute from './features/auth/components/ProtectedRoute';
 
 const AdminLayout = () => {
   return (
-    <div className="flex min-h-screen w-full bg-surface-base">
+    <div className="relative flex min-h-screen w-full bg-surface-base">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-accent-primary/10 blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-status-info/10 blur-3xl" />
+      </div>
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-8 animate-fade-in">
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8 animate-fade-in">
           <Outlet />
         </main>
       </div>

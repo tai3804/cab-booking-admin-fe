@@ -94,12 +94,12 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-base p-4 relative overflow-hidden">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-center bg-cover bg-no-repeat"
+      style={{ backgroundImage: "url('/BackgroundAdminCabBooking.jpg')" }}
+    >
       {/* Ambient background — subtle gold gradient at corners */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-accent-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-accent-primary/4 rounded-full blur-[100px]" />
-      </div>
+      <div className="absolute inset-0 bg-white/72 backdrop-blur-[1px]" />
 
       {/* Login Card */}
       <div className="w-full max-w-[420px] relative z-10">

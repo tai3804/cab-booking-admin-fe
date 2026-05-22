@@ -4,45 +4,45 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class',
+  darkMode: 'media',
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"Manrope"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
-        // Luxury dark palette — deep obsidian surfaces
+        // Light palette — clean white surfaces
         surface: {
-          base: '#09090b',
-          DEFAULT: '#16161d',
-          elevated: '#1e1e28',
-          active: '#262633',
+          base: '#FFFFFF',
+          DEFAULT: '#FFFFFF',
+          elevated: '#FFFFFF',
+          active: '#FFFEFA',
         },
-        // Gold champagne accent — replaces violet
+        // Sky blue accent
         accent: {
-          primary: '#C5A059',
-          hover: '#D4AF37',
-          glow: 'rgba(197, 160, 89, 0.12)',
-          muted: 'rgba(197, 160, 89, 0.08)',
+          primary: '#0EA5E9',
+          hover: '#38BDF8',
+          glow: 'rgba(14, 165, 233, 0.18)',
+          muted: 'rgba(14, 165, 233, 0.10)',
         },
-        // Ultra-subtle borders
+        // Subtle borders
         border: {
-          light: 'rgba(255, 255, 255, 0.055)',
-          medium: 'rgba(255, 255, 255, 0.10)',
-          active: 'rgba(197, 160, 89, 0.45)',
+          light: 'rgba(15, 23, 42, 0.08)',
+          medium: 'rgba(15, 23, 42, 0.14)',
+          active: 'rgba(14, 165, 233, 0.45)',
         },
         // Text hierarchy
         text: {
-          primary: '#F3F4F6',
-          secondary: '#9CA3AF',
-          muted: '#6B7280',
+          primary: '#111827',
+          secondary: '#4B5563',
+          muted: '#9CA3AF',
         },
         // Refined status colors — muted jewel tones
         status: {
           success: '#50C878',
           'success-bg': 'rgba(80, 200, 120, 0.08)',
-          warning: '#C5A059',
-          'warning-bg': 'rgba(197, 160, 89, 0.08)',
+          warning: '#0EA5E9',
+          'warning-bg': 'rgba(14, 165, 233, 0.10)',
           danger: '#8B2635',
           'danger-bg': 'rgba(139, 38, 53, 0.08)',
           info: '#4A90D9',
@@ -50,12 +50,12 @@ export default {
         },
       },
       boxShadow: {
-        // Soft deep shadows — no neon colors
-        'card': '0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3)',
-        'card-hover': '0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4)',
-        'accent': '0 2px 8px rgba(197, 160, 89, 0.15)',
-        'accent-hover': '0 4px 16px rgba(197, 160, 89, 0.22)',
-        'inner-soft': 'inset 0 1px 2px rgba(0, 0, 0, 0.3)',
+        // Soft shadows for light theme
+        'card': '0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.08)',
+        'card-hover': '0 2px 6px rgba(15, 23, 42, 0.10), 0 16px 32px rgba(15, 23, 42, 0.12)',
+        'accent': '0 2px 8px rgba(14, 165, 233, 0.20)',
+        'accent-hover': '0 4px 16px rgba(56, 189, 248, 0.28)',
+        'inner-soft': 'inset 0 1px 2px rgba(15, 23, 42, 0.06)',
       },
       borderRadius: {
         'sm': '8px',

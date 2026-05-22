@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import api from '../../../services/api';
 
-const PricingStatsBar = () => {
+const PricingStatsBar = ({ refreshKey = 0 }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
     api.get('/api/admin/dashboard')
-      .then(res => setStats(res.data.data))
-      .catch(() => setStats(null))
-      .finally(() => setLoading(false));
-  }, []);
+      .then((res) => { if (!cancelled) setStats(res.data.data); })
+      .catch(() => { if (!cancelled) setStats(null); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [refreshKey]);
 
   if (loading || !stats) return null;
 
