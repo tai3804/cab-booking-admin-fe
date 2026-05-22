@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import { Crown } from 'lucide-react';
 import { selectIsAuthenticated, selectCurrentUser, setCredentials, clearCredentials } from '../store/authSlice';
-import { API_BASE_URL } from '../services/api';
+import { API_BASE_URL } from '../../../config/env';
 
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -14,7 +15,6 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     const attemptSilentRefresh = async () => {
-      // If we already have the token in Redux, no refresh is needed
       if (isAuthenticated) {
         setIsAttemptingSilentRefresh(false);
         return;
@@ -26,7 +26,6 @@ const ProtectedRoute = ({ children }) => {
         return;
       }
 
-      // Bypass backend request if using mock sandbox refresh token
       if (refreshToken === 'mock_sandbox_refresh_token_jwt') {
         const mockUser = {
           userId: '00000000-0000-0000-0000-000000000000',
@@ -56,7 +55,6 @@ const ProtectedRoute = ({ children }) => {
         const newRefreshToken = data.refreshToken;
         const userSummary = data.user;
 
-        // Verify the user is an admin
         if (userSummary?.role !== 'ADMIN') {
           throw new Error('Unauthorized role access');
         }
@@ -84,14 +82,14 @@ const ProtectedRoute = ({ children }) => {
 
   if (isAttemptingSilentRefresh) {
     return (
-      <div className="auth-container">
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-          <div className="logo-icon" style={{ width: '60px', height: '60px', fontSize: '28px', animation: 'pulse 1.5s infinite' }}>
-            👑
+      <div className="min-h-screen flex items-center justify-center bg-surface-base">
+        <div className="text-center flex flex-col items-center gap-5">
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent-primary to-blue-500 flex items-center justify-center shadow-neon animate-pulse-slow">
+            <Crown size={28} className="text-white" />
           </div>
-          <div style={{ color: 'var(--text-secondary)', fontWeight: '600', letterSpacing: '0.5px' }}>
+          <p className="text-sm font-semibold text-text-secondary tracking-wide">
             Verifying Admin Session...
-          </div>
+          </p>
         </div>
       </div>
     );
@@ -103,16 +101,19 @@ const ProtectedRoute = ({ children }) => {
 
   if (currentUser?.role !== 'ADMIN') {
     return (
-      <div className="auth-container">
-        <div className="auth-card" style={{ textAlign: 'center' }}>
-          <div className="stat-icon-wrapper red" style={{ margin: '0 auto 20px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', width: '64px', height: '64px', borderRadius: '12px' }}>
-            🚫
+      <div className="min-h-screen flex items-center justify-center bg-surface-base p-4">
+        <div className="w-full max-w-md bg-surface border border-border-light rounded-xl p-8 text-center shadow-card-hover">
+          <div className="w-16 h-16 rounded-xl bg-status-danger-bg border border-status-danger/20 flex items-center justify-center mx-auto mb-5">
+            <span className="text-3xl">🚫</span>
           </div>
-          <h2 style={{ color: '#ef4444', marginBottom: '12px' }}>Access Denied</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '14px' }}>
+          <h2 className="text-xl font-bold text-status-danger mb-3">Access Denied</h2>
+          <p className="text-sm text-text-secondary mb-6 leading-relaxed">
             Only users with the administrator role are permitted to enter this portal.
           </p>
-          <button className="btn-primary" onClick={() => dispatch(clearCredentials())}>
+          <button
+            className="w-full py-3 bg-gradient-to-r from-accent-primary to-violet-600 text-white font-bold text-sm rounded-lg shadow-accent hover:shadow-accent-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+            onClick={() => dispatch(clearCredentials())}
+          >
             Return to Login
           </button>
         </div>

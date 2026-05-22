@@ -1,8 +1,7 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../config/env';
 import { store } from '../store';
-import { setCredentials, clearCredentials } from '../store/authSlice';
-
-const API_BASE_URL = 'http://localhost:8080';
+import { setCredentials, clearCredentials } from '../features/auth/store/authSlice';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to attach accessToken from Redux store in-memory
 api.interceptors.request.use(
   (config) => {
     const token = store.getState().auth.accessToken;
@@ -23,7 +21,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle auto token refresh when 401 Unauthorized occurs
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -43,9 +40,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Check if error status is 401 and this request has not already been retried
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // If we are already in the middle of refreshing the token, queue subsequent requests
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -67,14 +62,12 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // Bypass automatic silent refresh / session clearing if using mock sandbox token
       if (refreshToken === 'mock_sandbox_refresh_token_jwt') {
         isRefreshing = false;
         return Promise.reject(error);
       }
 
       try {
-        // Send request through Gateway to auth-service: /api/auth/refresh
         const res = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
           refreshToken,
         });
@@ -84,7 +77,6 @@ api.interceptors.response.use(
         const newRefreshToken = data.refreshToken;
         const userSummary = data.user;
 
-        // Securely write accessToken and User info back into Redux in-memory state
         store.dispatch(
           setCredentials({
             accessToken,
@@ -99,12 +91,10 @@ api.interceptors.response.use(
         processQueue(null, accessToken);
         isRefreshing = false;
 
-        // Re-execute original failed request with fresh accessToken
         originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        // Clear Redux state & log out user if the refresh token has expired
         store.dispatch(clearCredentials());
         isRefreshing = false;
         return Promise.reject(refreshError);
@@ -116,4 +106,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-export { API_BASE_URL };

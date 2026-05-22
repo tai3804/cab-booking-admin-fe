@@ -33,7 +33,6 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.user = null;
       state.isAuthenticated = false;
-      // Remove tokens and user info from localStorage on logout
       localStorage.removeItem('admin_refresh_token');
       localStorage.removeItem('admin_access_token');
       localStorage.removeItem('admin_user');
