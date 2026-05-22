@@ -11,8 +11,6 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
     latitude: data?.latitude ?? '',
     longitude: data?.longitude ?? '',
     radiusKm: data?.radiusKm ?? '',
-    activeDrivers: data?.activeDrivers ?? '',
-    pendingRides: data?.pendingRides ?? '',
     minMultiplier: data?.minMultiplier ?? '',
     maxMultiplier: data?.maxMultiplier ?? '',
     source: data?.source || 'MANUAL',
@@ -28,26 +26,33 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
       latitude: data?.latitude ?? '',
       longitude: data?.longitude ?? '',
       radiusKm: data?.radiusKm ?? '',
-      activeDrivers: data?.activeDrivers ?? '',
-      pendingRides: data?.pendingRides ?? '',
       minMultiplier: data?.minMultiplier ?? '',
       maxMultiplier: data?.maxMultiplier ?? '',
       source: data?.source || 'MANUAL',
     });
     setFieldErrors({});
-  }, [isOpen, data, mode]);
+  }, [isOpen, data]);
 
   const validate = (f) => {
     const errs = {};
-    const m = parseFloat(f.surgeMultiplier);
-    if (!m || m < 1.0 || m > 3.0) errs.surgeMultiplier = 'Giá trị từ 1.0 – 3.0';
+    const multiplier = parseFloat(f.surgeMultiplier);
+    if (!multiplier || multiplier < 1.0 || multiplier > 3.0) {
+      errs.surgeMultiplier = 'Giá trị từ 1.0 đến 3.0';
+    }
+    if (!isEdit) {
+      if (f.latitude === '' || f.latitude == null) errs.latitude = 'Bắt buộc khi tạo mới';
+      if (f.longitude === '' || f.longitude == null) errs.longitude = 'Bắt buộc khi tạo mới';
+    }
     return errs;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const errs = validate(form);
-    if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
+      return;
+    }
     setFieldErrors({});
     onSubmit(form);
   };
@@ -69,15 +74,20 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
             </div>
             <div>
               <h3 className="text-base font-semibold text-text-primary">
-                {isEdit ? 'Chỉnh sửa quy tắt Surge' : 'Tạo quy tắt Surge mới'}
+                {isEdit ? 'Chỉnh sửa quy tắc Surge' : 'Tạo quy tắc Surge mới'}
               </h3>
               <p className="text-[11px] text-text-muted mt-0.5">
-                {isEdit ? `Zone: ${data?.zoneId}` : 'Thêm surge cho khu vực'}
+                {isEdit ? `Zone: ${data?.zoneId}` : 'Backend tự sinh zone ID từ tọa độ'}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-elevated border border-border-light text-text-muted hover:text-text-primary hover:bg-surface-active transition-all cursor-pointer">
-            <svg size={15} strokeWidth={2} className="mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-surface-elevated border border-border-light text-text-muted hover:text-text-primary hover:bg-surface-active transition-all cursor-pointer"
+          >
+            <svg size={15} strokeWidth={2} className="mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
@@ -89,13 +99,12 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
             </div>
           )}
 
-          {!isEdit && (
+          {isEdit && (
             <FormField
               label="Zone ID"
-              required
-              placeholder="zone_downtown_01"
+              placeholder="Để trống để backend suy ra từ tọa độ"
               value={form.zoneId}
-              onChange={(v) => setForm(prev => ({ ...prev, zoneId: v }))}
+              onChange={(v) => setForm((prev) => ({ ...prev, zoneId: v }))}
               disabled={loading}
             />
           )}
@@ -104,7 +113,7 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
             label="Tên khu vực"
             placeholder="Khu vực trung tâm"
             value={form.zoneName}
-            onChange={(v) => setForm(prev => ({ ...prev, zoneName: v }))}
+            onChange={(v) => setForm((prev) => ({ ...prev, zoneName: v }))}
             disabled={loading}
           />
 
@@ -114,7 +123,10 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
             type="number"
             placeholder="1.5"
             value={form.surgeMultiplier}
-            onChange={(v) => { setForm(prev => ({ ...prev, surgeMultiplier: parseFloat(v) || 1.0 })); setFieldErrors(prev => ({ ...prev, surgeMultiplier: '' })); }}
+            onChange={(v) => {
+              setForm((prev) => ({ ...prev, surgeMultiplier: parseFloat(v) || 1.0 }));
+              setFieldErrors((prev) => ({ ...prev, surgeMultiplier: '' }));
+            }}
             disabled={loading}
             min={1}
             max={3}
@@ -128,18 +140,28 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
               type="number"
               placeholder="10.7629"
               value={form.latitude}
-              onChange={(v) => setForm(prev => ({ ...prev, latitude: v ? parseFloat(v) : null }))}
+              onChange={(v) => {
+                setForm((prev) => ({ ...prev, latitude: v === '' ? '' : (parseFloat(v) || '') }));
+                setFieldErrors((prev) => ({ ...prev, latitude: '' }));
+              }}
               disabled={loading}
               step="any"
+              required={!isEdit}
+              error={fieldErrors.latitude}
             />
             <FormField
               label="Kinh độ"
               type="number"
               placeholder="106.6604"
               value={form.longitude}
-              onChange={(v) => setForm(prev => ({ ...prev, longitude: v ? parseFloat(v) : null }))}
+              onChange={(v) => {
+                setForm((prev) => ({ ...prev, longitude: v === '' ? '' : (parseFloat(v) || '') }));
+                setFieldErrors((prev) => ({ ...prev, longitude: '' }));
+              }}
               disabled={loading}
               step="any"
+              required={!isEdit}
+              error={fieldErrors.longitude}
             />
           </div>
 
@@ -149,37 +171,16 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
               type="number"
               placeholder="2.0"
               value={form.radiusKm}
-              onChange={(v) => setForm(prev => ({ ...prev, radiusKm: v ? parseFloat(v) : null }))}
+              onChange={(v) => setForm((prev) => ({ ...prev, radiusKm: v ? parseFloat(v) : null }))}
               disabled={loading}
               min={0}
               step={0.1}
             />
             <FormField
-              label="Tài xế hoạt động"
-              type="number"
-              placeholder="50"
-              value={form.activeDrivers}
-              onChange={(v) => setForm(prev => ({ ...prev, activeDrivers: v ? parseInt(v) : null }))}
-              disabled={loading}
-              min={0}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              label="Chuyến đang chờ"
-              type="number"
-              placeholder="10"
-              value={form.pendingRides}
-              onChange={(v) => setForm(prev => ({ ...prev, pendingRides: v ? parseInt(v) : null }))}
-              disabled={loading}
-              min={0}
-            />
-            <FormField
               label="Nguồn"
               placeholder="MANUAL"
               value={form.source}
-              onChange={(v) => setForm(prev => ({ ...prev, source: v }))}
+              onChange={(v) => setForm((prev) => ({ ...prev, source: v }))}
               disabled={loading}
             />
           </div>
@@ -190,7 +191,7 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
               type="number"
               placeholder="1.0"
               value={form.minMultiplier}
-              onChange={(v) => setForm(prev => ({ ...prev, minMultiplier: v ? parseFloat(v) : null }))}
+              onChange={(v) => setForm((prev) => ({ ...prev, minMultiplier: v ? parseFloat(v) : null }))}
               disabled={loading}
               min={1}
               max={5}
@@ -201,7 +202,7 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
               type="number"
               placeholder="3.0"
               value={form.maxMultiplier}
-              onChange={(v) => setForm(prev => ({ ...prev, maxMultiplier: v ? parseFloat(v) : null }))}
+              onChange={(v) => setForm((prev) => ({ ...prev, maxMultiplier: v ? parseFloat(v) : null }))}
               disabled={loading}
               min={1}
               max={5}
@@ -222,7 +223,7 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
               disabled={loading}
               className="flex-1 py-2.5 bg-status-warning text-white font-semibold text-sm rounded-xl shadow-accent hover:shadow-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
-              {loading ? 'Đang xử lý...' : isEdit ? 'Lưu thay đổi' : 'Tạo quy tắt'}
+              {loading ? 'Đang xử lý...' : isEdit ? 'Lưu thay đổi' : 'Tạo quy tắc'}
             </button>
           </div>
         </form>
