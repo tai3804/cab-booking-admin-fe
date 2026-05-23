@@ -25,7 +25,7 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
     fetchConfigsRef.current = () => {
       let cancelled = false;
       setLoading(true);
-      api.get('/api/admin/pricing-configs')
+      api.get('/api/v1/admin/pricing-configs')
         .then(res => { if (!cancelled) setConfigs(res.data.data || []); })
         .catch(() => { if (!cancelled) setConfigs([]); })
         .finally(() => { if (!cancelled) setLoading(false); });
@@ -41,7 +41,7 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
 
   const handleToggle = async (config) => {
     try {
-      const res = await api.patch(`/api/admin/pricing-configs/${config.id}/toggle`);
+      const res = await api.patch(`/api/v1/admin/pricing-configs/${config.id}/toggle`);
       setConfigs(configs.map(c => c.id === config.id ? res.data.data : c));
       setStatsRefreshKey((k) => k + 1);
     } catch {
@@ -58,7 +58,7 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
   const handleDelete = async (config) => {
     if (!confirm(`Xóa cấu hình cước cho "${config.vehicleType}"?`)) return;
     try {
-      await api.delete(`/api/admin/pricing-configs/${config.id}`);
+      await api.delete(`/api/v1/admin/pricing-configs/${config.id}`);
       setConfigs(configs.filter(c => c.id !== config.id));
       setStatsRefreshKey((k) => k + 1);
     } catch {
@@ -79,9 +79,9 @@ const PricingConfigsTab = ({ showCreateModal, onCloseCreateModal }) => {
     };
     try {
       if (isEditModalOpen && editData) {
-        await api.put(`/api/admin/pricing-configs/${editData.id}`, payload);
+        await api.put(`/api/v1/admin/pricing-configs/${editData.id}`, payload);
       } else {
-        await api.post('/api/admin/pricing-configs', payload);
+        await api.post('/api/v1/admin/pricing-configs', payload);
       }
       onCloseCreateModal?.();
       setIsEditModalOpen(false);

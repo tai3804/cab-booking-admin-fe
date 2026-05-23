@@ -8,7 +8,7 @@ const PricingStatsBar = ({ refreshKey = 0 }) => {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    api.get('/api/admin/dashboard')
+    api.get('/api/v1/admin/dashboard')
       .then((res) => { if (!cancelled) setStats(res.data.data); })
       .catch(() => { if (!cancelled) setStats(null); })
       .finally(() => { if (!cancelled) setLoading(false); });
