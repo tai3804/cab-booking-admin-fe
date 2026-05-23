@@ -27,7 +27,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
       const { silent = false } = options;
       if (!silent) setLoading(true);
       try {
-        const res = await api.get('/api/admin/surge-rules');
+        const res = await api.get('/api/v1/admin/surge-rules');
         setRules(res.data.data || []);
       } catch {
         if (!silent) setRules([]);
@@ -62,7 +62,7 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
   const handleDelete = async (rule) => {
     if (!confirm(`Xóa quy tắt surge cho zone "${rule.zoneId}"?`)) return;
     try {
-      await api.delete(`/api/admin/surge-rules/${rule.id}`);
+      await api.delete(`/api/v1/admin/surge-rules/${rule.id}`);
       setRules(rules.filter((r) => r.id !== rule.id));
       setStatsRefreshKey((k) => k + 1);
     } catch {
@@ -73,23 +73,23 @@ const SurgeRulesTab = ({ showCreateModal, onCloseCreateModal }) => {
   const handleRuleSubmit = async (form) => {
     setFormLoading(true);
     setFormError('');
-    const payload = {
-      zoneId: isEditModalOpen ? form.zoneId : null,
-      zoneName: form.zoneName,
-      surgeMultiplier: form.surgeMultiplier,
-      latitude: form.latitude,
-      longitude: form.longitude,
-      radiusKm: form.radiusKm,
-      minMultiplier: form.minMultiplier,
-      maxMultiplier: form.maxMultiplier,
-      source: form.source,
-    };
+  const payload = {
+    zoneId: null,
+    zoneName: form.zoneName,
+    surgeMultiplier: form.surgeMultiplier,
+    latitude: form.latitude,
+    longitude: form.longitude,
+    radiusKm: form.radiusKm,
+    minMultiplier: form.minMultiplier,
+    maxMultiplier: form.maxMultiplier,
+    source: form.source,
+  };
 
     try {
       if (isEditModalOpen && editData) {
-        await api.put(`/api/admin/surge-rules/${editData.id}`, payload);
+        await api.put(`/api/v1/admin/surge-rules/${editData.id}`, payload);
       } else {
-        await api.post('/api/admin/surge-rules', payload);
+        await api.post('/api/v1/admin/surge-rules', payload);
       }
       onCloseCreateModal?.();
       setIsEditModalOpen(false);

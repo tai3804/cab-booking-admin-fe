@@ -1,37 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Plus, Pencil, AlertTriangle } from 'lucide-react';
 import FormField from '../shared/FormField';
 
+
+const buildForm = (data) => ({
+  zoneId: data?.zoneId || '',
+  zoneName: data?.zoneName || '',
+  surgeMultiplier: data?.surgeMultiplier ?? 1.0,
+  latitude: data?.latitude ?? '',
+  longitude: data?.longitude ?? '',
+  radiusKm: data?.radiusKm ?? '',
+  minMultiplier: data?.minMultiplier ?? '',
+  maxMultiplier: data?.maxMultiplier ?? '',
+  source: data?.source || 'MANUAL',
+});
+
 const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error }) => {
   const isEdit = mode === 'edit';
-  const [form, setForm] = useState({
-    zoneId: data?.zoneId || '',
-    zoneName: data?.zoneName || '',
-    surgeMultiplier: data?.surgeMultiplier ?? 1.0,
-    latitude: data?.latitude ?? '',
-    longitude: data?.longitude ?? '',
-    radiusKm: data?.radiusKm ?? '',
-    minMultiplier: data?.minMultiplier ?? '',
-    maxMultiplier: data?.maxMultiplier ?? '',
-    source: data?.source || 'MANUAL',
-  });
+  const [form, setForm] = useState(buildForm(data));
   const [fieldErrors, setFieldErrors] = useState({});
 
-  useEffect(() => {
-    if (!isOpen) return;
-    setForm({
-      zoneId: data?.zoneId || '',
-      zoneName: data?.zoneName || '',
-      surgeMultiplier: data?.surgeMultiplier ?? 1.0,
-      latitude: data?.latitude ?? '',
-      longitude: data?.longitude ?? '',
-      radiusKm: data?.radiusKm ?? '',
-      minMultiplier: data?.minMultiplier ?? '',
-      maxMultiplier: data?.maxMultiplier ?? '',
-      source: data?.source || 'MANUAL',
-    });
-    setFieldErrors({});
-  }, [isOpen, data]);
+  if (isOpen && form.zoneId !== (data?.zoneId || '') && data) {
+    setForm(buildForm(data));
+  }
+
+  if (!isOpen) return null;
 
   const validate = (f) => {
     const errs = {};
@@ -100,13 +93,14 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
           )}
 
           {isEdit && (
-            <FormField
-              label="Zone ID"
-              placeholder="Để trống để backend suy ra từ tọa độ"
-              value={form.zoneId}
-              onChange={(v) => setForm((prev) => ({ ...prev, zoneId: v }))}
-              disabled={loading}
-            />
+            <div className="flex flex-col gap-1">
+              <label className="block text-[13px] font-semibold text-text-secondary tracking-wide">
+                Zone ID
+              </label>
+              <div className="w-full px-4 py-3 bg-surface-elevated border border-border-light rounded-xl text-sm font-mono text-text-muted">
+                {data?.zoneId}
+              </div>
+            </div>
           )}
 
           <FormField
@@ -117,22 +111,34 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
             disabled={loading}
           />
 
-          <FormField
-            label="Hệ số Surge"
-            required
-            type="number"
-            placeholder="1.5"
-            value={form.surgeMultiplier}
-            onChange={(v) => {
-              setForm((prev) => ({ ...prev, surgeMultiplier: parseFloat(v) || 1.0 }));
-              setFieldErrors((prev) => ({ ...prev, surgeMultiplier: '' }));
-            }}
-            disabled={loading}
-            min={1}
-            max={3}
-            step={0.1}
-            error={fieldErrors.surgeMultiplier}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              label="Hệ số Surge"
+              required
+              type="number"
+              placeholder="1.5"
+              value={form.surgeMultiplier}
+              onChange={(v) => {
+                setForm((prev) => ({ ...prev, surgeMultiplier: parseFloat(v) || 1.0 }));
+                setFieldErrors((prev) => ({ ...prev, surgeMultiplier: '' }));
+              }}
+              disabled={loading}
+              min={1}
+              max={3}
+              step={0.1}
+              error={fieldErrors.surgeMultiplier}
+            />
+            <FormField
+              label="Bán kính (km)"
+              type="number"
+              placeholder="2.0"
+              value={form.radiusKm}
+              onChange={(v) => setForm((prev) => ({ ...prev, radiusKm: v ? parseFloat(v) : null }))}
+              disabled={loading}
+              min={0}
+              step={0.1}
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <FormField
@@ -162,26 +168,6 @@ const SurgeFormModal = ({ isOpen, onClose, mode, data, onSubmit, loading, error 
               step="any"
               required={!isEdit}
               error={fieldErrors.longitude}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              label="Bán kính (km)"
-              type="number"
-              placeholder="2.0"
-              value={form.radiusKm}
-              onChange={(v) => setForm((prev) => ({ ...prev, radiusKm: v ? parseFloat(v) : null }))}
-              disabled={loading}
-              min={0}
-              step={0.1}
-            />
-            <FormField
-              label="Nguồn"
-              placeholder="MANUAL"
-              value={form.source}
-              onChange={(v) => setForm((prev) => ({ ...prev, source: v }))}
-              disabled={loading}
             />
           </div>
 
