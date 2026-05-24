@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState } from 'react';
-import { LayoutDashboard, Users, Car, LogOut, ChevronLeft, ChevronRight, Compass, DollarSign, Key } from 'lucide-react';
+import { LayoutDashboard, Users, Car, LogOut, ChevronLeft, ChevronRight, Compass, DollarSign, Key, BarChart3 } from 'lucide-react';
 import { selectCurrentUser, clearCredentials } from '../../features/auth/store/authSlice';
 import api from '../../services/api';
 
@@ -29,6 +29,7 @@ const Sidebar = () => {
     { to: '/users', icon: Users, label: 'Quản lý Users' },
     { to: '/drivers', icon: Car, label: 'Quản lý Drivers' },
     { to: '/pricing', icon: DollarSign, label: 'Quản lý Pricing' },
+    { to: '/statistics', icon: BarChart3, label: 'Thống kê' },
   ];
 
   return (
