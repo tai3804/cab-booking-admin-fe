@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState } from 'react';
-import { LayoutDashboard, Users, Car, LogOut, ChevronLeft, ChevronRight, Compass, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Users, Car, LogOut, ChevronLeft, ChevronRight, Compass, DollarSign, Key } from 'lucide-react';
 import { selectCurrentUser, clearCredentials } from '../../features/auth/store/authSlice';
 import api from '../../services/api';
 
@@ -10,6 +10,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -118,7 +119,11 @@ const Sidebar = () => {
         {/* Footer: Profile Card + Logout */}
         <div className={`p-3 border-t border-border-light bg-gradient-to-t from-surface-active/40 to-transparent space-y-2 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
           {/* Profile Card */}
-          <div className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border border-border-light bg-white shadow-sm ${isCollapsed ? 'w-12 h-12 justify-center px-0 py-0' : ''}`}>
+          <div className="relative">{/* relative container so menu overlays without shifting layout */}
+            <div
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border border-border-light bg-white shadow-sm cursor-pointer ${isCollapsed ? 'w-12 h-12 justify-center px-0 py-0' : ''}`}
+            >
             <div className="w-9 h-9 rounded-full bg-accent-primary/10 border border-accent-primary/25 flex items-center justify-center font-semibold text-accent-primary text-sm flex-shrink-0">
               {currentUser?.fullName?.charAt(0) || 'A'}
             </div>
@@ -132,23 +137,33 @@ const Sidebar = () => {
                 </p>
               </div>
             )}
-          </div>
+            </div>
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className={`
-              flex items-center justify-center gap-2.5 w-full py-2.5 rounded-xl
-              bg-white border border-border-light shadow-sm
-              text-text-secondary font-semibold text-sm
-              hover:bg-surface-elevated hover:text-text-primary hover:border-border-medium
-              transition-all duration-200 cursor-pointer
-              ${isCollapsed ? 'w-12 h-12 px-0' : 'px-3'}
-            `}
-          >
-            <LogOut size={15} strokeWidth={1.75} />
-            {!isCollapsed && <span>Đăng xuất</span>}
-          </button>
+            {/* Profile menu (toggles when clicking profile card) - absolute overlay so it doesn't move the profile text */}
+            {showProfileMenu && (
+              <div className={`absolute z-50 ${isCollapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'} bottom-14`}>
+                <div className="bg-white border border-border-light rounded-xl shadow-sm p-2 flex flex-col gap-2 w-44">
+                  {currentUser?.role === 'ADMIN' && (
+                    <button
+                      onClick={() => { setShowProfileMenu(false); navigate('/change-password'); }}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:bg-surface-elevated rounded-md"
+                    >
+                      <Key size={14} />
+                      <span>Đổi mật khẩu</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => { setShowProfileMenu(false); handleLogout(); }}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:bg-surface-elevated rounded-md"
+                  >
+                    <LogOut size={14} />
+                    <span>Đăng xuất</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </aside>
 

@@ -63,31 +63,11 @@ const Login = () => {
 
       navigate(from, { replace: true });
     } catch (err) {
-      console.error('API login failed, checking for local sandbox fallback.');
-
-      if (email === 'admin@cab.local' && password === 'AdminPassword123') {
-        const mockUser = {
-          userId: '00000000-0000-0000-0000-000000000000',
-          email: 'admin@cab.local',
-          fullName: 'Tài Khoản Admin Demo',
-          role: 'ADMIN',
-          accountStatus: 'ACTIVE',
-        };
-
-        dispatch(
-          setCredentials({
-            accessToken: 'mock_sandbox_access_token_jwt',
-            user: mockUser,
-          })
-        );
-        localStorage.setItem('admin_refresh_token', 'mock_sandbox_refresh_token_jwt');
-        navigate(from, { replace: true });
-      } else {
-        setErrorMsg(
-          err.response?.data?.message ||
-          'Không thể kết nối đến máy chủ! Sai thông tin hoặc Cổng Gateway 8080 chưa chạy.'
-        );
-      }
+      console.error('API login failed:', err);
+      setErrorMsg(
+        err.response?.data?.message ||
+          'Không thể kết nối đến máy chủ hoặc thông tin đăng nhập không hợp lệ.'
+      );
     } finally {
       setLoading(false);
     }
