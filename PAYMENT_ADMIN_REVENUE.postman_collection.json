@@ -1,0 +1,305 @@
+{
+	"info": {
+		"_postman_id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+		"name": "PAYMENT_ADMIN_REVENUE",
+		"description": "Collection for testing Admin Revenue Statistics and Transactions APIs in Payment-Service.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.result && jsonData.result.accessToken) {",
+									"    pm.environment.set(\"admin_token\", jsonData.result.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@cab.local\",\n    \"password\": \"AdminPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Revenue Statistics",
+			"item": [
+				{
+					"name": "Get Revenue Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/revenue/overview?startDate=2026-05-01T00:00:00Z&endDate=2026-05-31T23:59:59Z",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"revenue",
+								"overview"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2026-05-01T00:00:00Z",
+									"description": "Start date in ISO-8601 format"
+								},
+								{
+									"key": "endDate",
+									"value": "2026-05-31T23:59:59Z",
+									"description": "End date in ISO-8601 format"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Daily Revenue Breakdown",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/revenue/daily?startDate=2026-05-01T00:00:00Z&endDate=2026-05-31T23:59:59Z",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"revenue",
+								"daily"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2026-05-01T00:00:00Z"
+								},
+								{
+									"key": "endDate",
+									"value": "2026-05-31T23:59:59Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+			
+				{
+					"name": "Get Revenue Statistics (Alias)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/revenue/statistics?startDate=2026-05-01T00:00:00Z&endDate=2026-05-31T23:59:59Z",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"revenue",
+								"statistics"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2026-05-01T00:00:00Z"
+								},
+								{
+									"key": "endDate",
+									"value": "2026-05-31T23:59:59Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Weekly Revenue Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/revenue/weekly",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"revenue",
+								"weekly"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Monthly Revenue Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/revenue/monthly",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"revenue",
+								"monthly"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Paginated Transactions for Admin",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/revenue/transactions?statuses=SUCCESS,PENDING&methods=MOMO,VNPAY&page=0&size=10&sort=createdAt,desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"revenue",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "statuses",
+									"value": "SUCCESS,PENDING",
+									"description": "Filter by transaction statuses (comma-separated)"
+								},
+								{
+									"key": "methods",
+									"value": "MOMO,VNPAY",
+									"description": "Filter by payment methods (comma-separated)"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "sort",
+									"value": "createdAt,desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Daily Revenue Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/revenue/daily/2026-05-24",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"revenue",
+								"daily",
+								"2026-05-24"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "admin_token",
+			"value": ""
+		}
+	]
+}

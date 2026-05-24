@@ -10,6 +10,7 @@ import DriversManagement from './features/drivers/components/DriversManagement';
 import PricingManagement from './features/pricing/components/PricingManagement';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
 import ChangePassword from './features/auth/components/ChangePassword';
+import Statistics from './features/statistics/components/Statistics';
 
 const AdminLayout = () => {
   return (
@@ -48,6 +49,7 @@ function App() {
             <Route path="/users" element={<UsersManagement />} />
             <Route path="/drivers" element={<DriversManagement />} />
             <Route path="/pricing" element={<PricingManagement />} />
+            <Route path="/statistics" element={<Statistics />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
