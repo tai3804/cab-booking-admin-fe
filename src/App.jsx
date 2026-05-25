@@ -11,6 +11,7 @@ import PricingManagement from './features/pricing/components/PricingManagement';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
 import ChangePassword from './features/auth/components/ChangePassword';
 import Statistics from './features/statistics/components/Statistics';
+import AICopilot from './shared/components/AICopilot';
 
 const AdminLayout = () => {
   return (
@@ -26,6 +27,7 @@ const AdminLayout = () => {
           <Outlet />
         </main>
       </div>
+      <AICopilot />
     </div>
   );
 };
