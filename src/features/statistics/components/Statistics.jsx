@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   BarChart, Bar, PieChart, Pie,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Sector
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Sector, Cell
 } from 'recharts';
 import {
   RefreshCw, TrendingUp, DollarSign, Receipt,
@@ -12,6 +12,11 @@ import {
 import api from '../../../services/api';
 
 const CURRENCY = 'VND';
+
+const PAYMENT_METHOD_COLORS = [
+  '#0EA5E9', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444',
+  '#3B82F6', '#6366F1', '#A50064', '#0068FF', '#00B14F'
+];
 
 const PAYMENT_METHOD_CONFIG = {
   CREDIT_CARD: { label: 'Thẻ tín dụng', icon: CreditCard, color: '#3B82F6' },
@@ -94,8 +99,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const renderActiveShape = (props) => {
   const {
-    cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload
+    cx, cy, innerRadius, outerRadius, startAngle, endAngle, payload, index
   } = props;
+  const color = PAYMENT_METHOD_COLORS[index % PAYMENT_METHOD_COLORS.length];
   return (
     <g>
       <Sector
@@ -104,7 +110,7 @@ const renderActiveShape = (props) => {
         outerRadius={outerRadius + 6}
         startAngle={startAngle}
         endAngle={endAngle}
-        fill={fill}
+        fill={color}
       />
       <Sector
         cx={cx} cy={cy}
@@ -112,7 +118,7 @@ const renderActiveShape = (props) => {
         outerRadius={innerRadius}
         startAngle={startAngle}
         endAngle={endAngle}
-        fill={fill}
+        fill={color}
         opacity={0.4}
       />
       <text x={cx} y={cy - 10} textAnchor="middle" fill="#374151" fontSize={12} fontWeight={600}>
@@ -330,10 +336,7 @@ const Statistics = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-text-primary tracking-tight">Thống kê doanh thu</h1>
-          <p className="text-sm text-text-muted mt-0.5">Phân tích doanh thu và giao dịch thanh toán</p>
-        </div>
+        <div />
         <div className="flex items-center gap-3">
           {/* Date Range Picker */}
           <div className="flex items-center gap-2 bg-surface border border-border-light rounded-xl px-3 py-2">
@@ -521,7 +524,14 @@ const Statistics = () => {
                   dataKey="totalRevenue"
                   onMouseEnter={onPieEnter}
                   strokeWidth={0}
-                />
+                >
+                  {methodData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={PAYMENT_METHOD_COLORS[index % PAYMENT_METHOD_COLORS.length]}
+                    />
+                  ))}
+                </Pie>
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -529,13 +539,14 @@ const Statistics = () => {
           {/* Legend */}
           {!loading && methodData.length > 0 && (
             <div className="grid grid-cols-2 gap-1.5 mt-2">
-              {methodData.map((item) => {
+              {methodData.map((item, index) => {
                 const config = PAYMENT_METHOD_CONFIG[item.paymentMethod] || {};
+                const color = PAYMENT_METHOD_COLORS[index % PAYMENT_METHOD_COLORS.length];
                 return (
                   <div key={item.paymentMethod} className="flex items-center gap-1.5">
                     <div
                       className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: config.color || '#9CA3AF' }}
+                      style={{ backgroundColor: color }}
                     />
                     <span className="text-[10px] text-text-muted truncate">
                       {config.label || item.paymentMethod}

@@ -15,8 +15,12 @@ const Header = () => {
         return 'Quản lý Hồ sơ Tài xế';
       case '/invoices':
         return 'Quản lý Giao dịch & Hóa đơn';
+      case '/statistics':
+        return 'Thống kê Doanh thu';
+      case '/pricing':
+        return 'Quản lý Pricing';
       default:
-        return 'Quản lý  Pricing';
+        return 'Dashboard';
     }
   };
 
