@@ -37,7 +37,7 @@ const StatusBadge = ({ status }) => {
 };
 
 // Action buttons
-const ActionButtons = ({ driver, onView, onToggleAccount, onApprove }) => (
+const ActionButtons = ({ driver, onView, onToggleAccount, onActivate }) => (
   <div className="flex items-center justify-end gap-1.5">
     <button
       onClick={() => onView(driver)}
@@ -65,9 +65,9 @@ const ActionButtons = ({ driver, onView, onToggleAccount, onApprove }) => (
     )}
     {driver.verificationStatus === 'PENDING' && (
       <button
-        onClick={() => onApprove(driver.id, 'APPROVED')}
+        onClick={() => onActivate(driver)}
         className="w-8 h-8 rounded-lg bg-surface-elevated border border-border-light text-text-muted hover:text-status-success hover:bg-status-success-bg hover:border-status-success/20 transition-all duration-200 flex items-center justify-center cursor-pointer"
-        title="Duyệt hồ sơ"
+        title="Kích hoạt phương tiện"
       >
         <CheckCircle2 size={14} strokeWidth={1.75} />
       </button>
@@ -135,7 +135,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
 };
 
 // Detail Modal
-const DetailModal = ({ driver, onClose }) => {
+const DetailModal = ({ driver, onClose, onActivate }) => {
   if (!driver) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -168,14 +168,129 @@ const DetailModal = ({ driver, onClose }) => {
           <DriverDetailRow icon={driver.accountStatus === 'ACTIVE' ? CheckCircle : Ban} label="Tài khoản" badge status={driver.accountStatus || 'ACTIVE'} />
         </div>
 
-        <div className="p-5 pt-0">
+        <div className="p-5 pt-0 flex flex-col sm:flex-row gap-2">
           <button
             onClick={onClose}
-            className="w-full py-2.5 bg-surface-elevated border border-border-light rounded-xl text-sm font-medium text-text-secondary hover:bg-surface-active hover:text-text-primary hover:border-border-medium transition-all cursor-pointer"
+            className="flex-1 py-2.5 bg-surface-elevated border border-border-light rounded-xl text-sm font-medium text-text-secondary hover:bg-surface-active hover:text-text-primary hover:border-border-medium transition-all cursor-pointer"
           >
             Đóng
           </button>
+          <button
+            onClick={() => onActivate(driver)}
+            className="flex-1 py-2.5 bg-accent-primary text-white font-semibold text-sm rounded-xl shadow-accent hover:shadow-accent-hover transition-all cursor-pointer"
+          >
+            Cập nhật xe
+          </button>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const VehicleActivationModal = ({ isOpen, driver, formData, setFormData, onSubmit, loading, error, onClose }) => {
+  if (!isOpen || !driver) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-lg bg-surface border border-border-light rounded-2xl shadow-card-hover animate-scale-up overflow-hidden">
+        <div className="gold-divider" />
+        <div className="flex items-center justify-between p-6 border-b border-border-light">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-accent-primary/8 border border-accent-primary/20 flex items-center justify-center">
+              <Car size={17} strokeWidth={1.75} className="text-accent-hover" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-text-primary">Kích hoạt phương tiện</h3>
+              <p className="text-[11px] text-text-muted mt-0.5">Tài xế: {driver.fullName}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-elevated border border-border-light text-text-muted hover:text-text-primary hover:bg-surface-active transition-all cursor-pointer">
+            <X size={15} strokeWidth={2} className="mx-auto" />
+          </button>
+        </div>
+
+        <form onSubmit={onSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="p-3 bg-status-danger-bg border border-status-danger/15 rounded-xl text-status-danger text-sm flex items-center gap-2">
+              <span>⚠️</span> {error}
+            </div>
+          )}
+
+          <DriverFormField
+            label="Số GPLX"
+            required
+            placeholder="Nhập số giấy phép lái xe..."
+            value={formData.licenseNumber}
+            onChange={(v) => setFormData({ ...formData, licenseNumber: v })}
+            disabled={loading}
+          />
+
+          <DriverSelectField
+            label="Loại xe"
+            required
+            value={formData.vehicleType}
+            onChange={(v) => setFormData({ ...formData, vehicleType: v })}
+            disabled={loading}
+            options={[
+              { value: 'BIKE', label: 'Xe máy (BIKE)' },
+              { value: 'CAR4', label: 'Ô tô 4 chỗ (CAR4)' },
+              { value: 'CAR7', label: 'Ô tô 7 chỗ (CAR7)' },
+            ]}
+          />
+
+          <DriverFormField
+            label="Biển số"
+            required
+            placeholder="Nhập biển số xe..."
+            value={formData.vehiclePlate}
+            onChange={(v) => setFormData({ ...formData, vehiclePlate: v })}
+            disabled={loading}
+          />
+
+          <DriverFormField
+            label="Dòng xe"
+            required
+            placeholder="Nhập dòng xe..."
+            value={formData.vehicleModel}
+            onChange={(v) => setFormData({ ...formData, vehicleModel: v })}
+            disabled={loading}
+          />
+
+          <DriverFormField
+            label="Màu xe"
+            required
+            placeholder="Nhập màu xe..."
+            value={formData.vehicleColor}
+            onChange={(v) => setFormData({ ...formData, vehicleColor: v })}
+            disabled={loading}
+          />
+
+          <DriverFormField
+            label="Khu vực hoạt động"
+            placeholder="Ví dụ: Ho Chi Minh City"
+            value={formData.serviceArea}
+            onChange={(v) => setFormData({ ...formData, serviceArea: v })}
+            disabled={loading}
+          />
+
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 bg-surface-elevated border border-border-light rounded-xl text-sm font-medium text-text-secondary hover:bg-surface-active hover:text-text-primary hover:border-border-medium transition-all cursor-pointer"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 py-2.5 bg-accent-primary text-white font-semibold text-sm rounded-xl shadow-accent hover:shadow-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              {loading ? 'Đang lưu...' : 'Kích hoạt'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -301,6 +416,25 @@ const DriverFormField = ({ label, required, type = 'text', placeholder, value, o
   </div>
 );
 
+const DriverSelectField = ({ label, required, value, onChange, disabled, options }) => (
+  <div className="space-y-2">
+    <label className="block text-[13px] font-semibold text-text-secondary tracking-wide">
+      {label} {required && <span className="text-status-danger">*</span>}
+    </label>
+    <select
+      className="w-full px-4 py-3 bg-surface-elevated border border-border-light rounded-xl text-sm text-text-primary focus:outline-none focus:border-accent-primary/50 focus:ring-1 focus:ring-accent-primary/20 disabled:opacity-50 transition-all duration-200"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
+      required={required}
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>{option.label}</option>
+      ))}
+    </select>
+  </div>
+);
+
 // Main Component
 const DriversManagement = () => {
   const [drivers, setDrivers] = useState([]);
@@ -313,6 +447,18 @@ const DriversManagement = () => {
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '', phoneNumber: '' });
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [activationDriver, setActivationDriver] = useState(null);
+  const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
+  const [activationForm, setActivationForm] = useState({
+    licenseNumber: '',
+    vehicleType: 'CAR4',
+    vehiclePlate: '',
+    vehicleModel: '',
+    vehicleColor: '',
+    serviceArea: '',
+  });
+  const [activationLoading, setActivationLoading] = useState(false);
+  const [activationError, setActivationError] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -332,15 +478,6 @@ const DriversManagement = () => {
   }, []);
 
   const handleRefresh = () => fetchDriversRef.current?.();
-
-  const handleUpdateStatus = async (driverId, nextStatus) => {
-    try {
-      await api.patch(`/api/drivers/${driverId}/verification`, { status: nextStatus });
-      setDrivers(drivers.map(d => d.id === driverId ? { ...d, verificationStatus: nextStatus } : d));
-    } catch {
-      setDrivers(drivers.map(d => d.id === driverId ? { ...d, verificationStatus: nextStatus } : d));
-    }
-  };
 
   const handleToggleAccountStatus = async (driverId, currentStatus) => {
     const isBlocking = currentStatus === 'ACTIVE';
@@ -373,6 +510,57 @@ const DriversManagement = () => {
       setCreateError(err.response?.data?.message || err.message || 'Lỗi khi tạo tài xế.');
     } finally {
       setCreateLoading(false);
+    }
+  };
+
+  const openActivationModal = (driver) => {
+    setActivationDriver(driver);
+    setActivationForm({
+      licenseNumber: driver.licenseNumber || '',
+      vehicleType: driver.vehicleType || 'CAR4',
+      vehiclePlate: driver.vehiclePlate || '',
+      vehicleModel: driver.vehicleModel || '',
+      vehicleColor: driver.vehicleColor || '',
+      serviceArea: driver.serviceArea || '',
+    });
+    setActivationError('');
+    setIsActivationModalOpen(true);
+  };
+
+  const handleActivateVehicle = async (e) => {
+    e.preventDefault();
+    if (!activationDriver?.externalUserId) {
+      setActivationError('Không tìm thấy mã tài xế để cập nhật.');
+      return;
+    }
+
+    setActivationLoading(true);
+    setActivationError('');
+    try {
+      const payload = {
+        externalUserId: activationDriver.externalUserId,
+        fullName: activationDriver.fullName,
+        email: activationDriver.email,
+        phoneNumber: activationDriver.phoneNumber,
+        avatarUrl: activationDriver.avatarUrl || '',
+        licenseNumber: activationForm.licenseNumber,
+        vehicleType: activationForm.vehicleType,
+        vehiclePlate: activationForm.vehiclePlate,
+        vehicleModel: activationForm.vehicleModel,
+        vehicleColor: activationForm.vehicleColor,
+        serviceArea: activationForm.serviceArea,
+      };
+
+      const res = await api.put('/api/drivers/me/profile', payload);
+      const updated = res.data?.result;
+      if (updated) {
+        setDrivers((prev) => prev.map(d => d.externalUserId === activationDriver.externalUserId ? { ...d, ...updated } : d));
+      }
+      setIsActivationModalOpen(false);
+    } catch (err) {
+      setActivationError(err.response?.data?.message || err.message || 'Lỗi khi cập nhật phương tiện.');
+    } finally {
+      setActivationLoading(false);
     }
   };
 
@@ -507,7 +695,7 @@ const DriversManagement = () => {
                       driver={driver}
                       onView={setSelectedDriver}
                       onToggleAccount={handleToggleAccountStatus}
-                      onApprove={handleUpdateStatus}
+                      onActivate={openActivationModal}
                     />
                   </td>
                 </tr>
@@ -529,7 +717,7 @@ const DriversManagement = () => {
       </div>
 
       {/* Modals */}
-      <DetailModal driver={selectedDriver} onClose={() => setSelectedDriver(null)} />
+      <DetailModal driver={selectedDriver} onClose={() => setSelectedDriver(null)} onActivate={openActivationModal} />
       <CreateModal
         isOpen={isCreateModalOpen}
         onClose={() => { setIsCreateModalOpen(false); setCreateError(''); }}
@@ -538,6 +726,16 @@ const DriversManagement = () => {
         onSubmit={handleCreateDriver}
         loading={createLoading}
         error={createError}
+      />
+      <VehicleActivationModal
+        isOpen={isActivationModalOpen}
+        driver={activationDriver}
+        formData={activationForm}
+        setFormData={setActivationForm}
+        onSubmit={handleActivateVehicle}
+        loading={activationLoading}
+        error={activationError}
+        onClose={() => { setIsActivationModalOpen(false); setActivationError(''); }}
       />
     </div>
   );
