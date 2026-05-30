@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Search, Eye, CheckCircle, Ban, RefreshCw, Plus, X, UserCheck, UserX, Mail, Phone, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Search, Eye, CheckCircle, Ban, RefreshCw, X, UserCheck, UserX, Mail, Phone, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import api from '../../../services/api';
 
 // Minimalist status badge — dot + text only
@@ -175,111 +175,6 @@ const DetailRow = ({ icon: Icon, label, value, badge }) => (
   </div>
 );
 
-// Create User Modal
-const CreateModal = ({ isOpen, onClose, formData, setFormData, onSubmit, loading, error }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-surface border border-border-light rounded-2xl shadow-card-hover animate-scale-up overflow-hidden">
-        <div className="gold-divider" />
-        <div className="flex items-center justify-between p-6 border-b border-border-light">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-accent-primary/8 border border-accent-primary/20 flex items-center justify-center">
-              <Plus size={17} strokeWidth={1.75} className="text-accent-hover" />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-text-primary">Tạo Người Dùng Mới</h3>
-              <p className="text-[11px] text-text-muted mt-0.5">Thêm tài khoản khách hàng mới</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-elevated border border-border-light text-text-muted hover:text-text-primary hover:bg-surface-active transition-all cursor-pointer">
-            <X size={15} strokeWidth={2} className="mx-auto" />
-          </button>
-        </div>
-
-        <form onSubmit={onSubmit} className="p-6 space-y-4">
-          {error && (
-            <div className="p-3 bg-status-danger-bg border border-status-danger/15 rounded-xl text-status-danger text-sm flex items-center gap-2">
-              <span>⚠️</span> {error}
-            </div>
-          )}
-
-          <FormField
-            label="Họ và Tên"
-            required
-            placeholder="Nhập họ và tên..."
-            value={formData.fullName}
-            onChange={(v) => setFormData({ ...formData, fullName: v })}
-            disabled={loading}
-          />
-          <FormField
-            label="Địa chỉ Email"
-            type="email"
-            required
-            placeholder="Nhập email..."
-            value={formData.email}
-            onChange={(v) => setFormData({ ...formData, email: v })}
-            disabled={loading}
-          />
-          <FormField
-            label="Mật khẩu"
-            type="password"
-            required
-            placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)..."
-            value={formData.password}
-            onChange={(v) => setFormData({ ...formData, password: v })}
-            disabled={loading}
-            minLength={6}
-          />
-          <FormField
-            label="Số điện thoại"
-            placeholder="Nhập số điện thoại..."
-            value={formData.phoneNumber}
-            onChange={(v) => setFormData({ ...formData, phoneNumber: v })}
-            disabled={loading}
-          />
-
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 bg-surface-elevated border border-border-light rounded-xl text-sm font-medium text-text-secondary hover:bg-surface-active hover:text-text-primary hover:border-border-medium transition-all cursor-pointer"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 py-2.5 bg-accent-primary text-white font-semibold text-sm rounded-xl shadow-accent hover:shadow-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
-            >
-              {loading ? 'Đang tạo...' : 'Tạo tài khoản'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-const FormField = ({ label, required, type = 'text', placeholder, value, onChange, disabled, minLength }) => (
-  <div className="space-y-2">
-    <label className="block text-[13px] font-semibold text-text-secondary tracking-wide">
-      {label} {required && <span className="text-status-danger">*</span>}
-    </label>
-    <input
-      type={type}
-      placeholder={placeholder}
-      className="w-full px-4 py-3 bg-surface-elevated border border-border-light rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary/50 focus:ring-1 focus:ring-accent-primary/20 disabled:opacity-50 transition-all duration-200"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled}
-      required={required}
-      minLength={minLength}
-    />
-  </div>
-);
 
 // Main Component
 const UsersManagement = () => {
@@ -288,10 +183,6 @@ const UsersManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedUser, setSelectedUser] = useState(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ fullName: '', email: '', password: '', phoneNumber: '' });
-  const [createLoading, setCreateLoading] = useState(false);
-  const [createError, setCreateError] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -324,28 +215,6 @@ const UsersManagement = () => {
     }
   };
 
-  const handleCreateUser = async (e) => {
-    e.preventDefault();
-    setCreateLoading(true);
-    setCreateError('');
-    try {
-      await api.post('/api/admin/users', {
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        phoneNumber: formData.phoneNumber,
-        avatarUrl: '',
-      });
-      setIsCreateModalOpen(false);
-      setFormData({ fullName: '', email: '', password: '', phoneNumber: '' });
-      fetchUsersRef.current();
-    } catch (err) {
-      setCreateError(err.response?.data?.message || err.message || 'Lỗi khi tạo người dùng.');
-    } finally {
-      setCreateLoading(false);
-    }
-  };
-
   const filteredUsers = users.filter(user => {
     const q = searchQuery.toLowerCase();
     const matchesSearch =
@@ -373,17 +242,6 @@ const UsersManagement = () => {
 
   return (
     <div className="space-y-5">
-      {/* Page Header */}
-      <div className="flex items-center justify-end">
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-accent-primary text-white text-sm font-semibold rounded-xl shadow-accent hover:shadow-accent-hover transition-all duration-200 cursor-pointer"
-        >
-          <Plus size={15} strokeWidth={2} />
-          <span>Thêm người dùng</span>
-        </button>
-      </div>
-
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         {/* Search */}
@@ -486,15 +344,6 @@ const UsersManagement = () => {
 
       {/* Modals */}
       <DetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />
-      <CreateModal
-        isOpen={isCreateModalOpen}
-        onClose={() => { setIsCreateModalOpen(false); setCreateError(''); }}
-        formData={formData}
-        setFormData={setFormData}
-        onSubmit={handleCreateUser}
-        loading={createLoading}
-        error={createError}
-      />
     </div>
   );
 };
