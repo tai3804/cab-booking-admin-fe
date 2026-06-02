@@ -7,6 +7,7 @@ import Header from './shared/components/Header';
 import Dashboard from './features/dashboard/components/Dashboard';
 import UsersManagement from './features/users/components/UsersManagement';
 import DriversManagement from './features/drivers/components/DriversManagement';
+import BookingsManagement from './features/bookings/components/BookingsManagement';
 import PricingManagement from './features/pricing/components/PricingManagement';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
 import ChangePassword from './features/auth/components/ChangePassword';
@@ -50,6 +51,7 @@ function App() {
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/users" element={<UsersManagement />} />
             <Route path="/drivers" element={<DriversManagement />} />
+            <Route path="/bookings" element={<BookingsManagement />} />
             <Route path="/pricing" element={<PricingManagement />} />
             <Route path="/statistics" element={<Statistics />} />
           </Route>

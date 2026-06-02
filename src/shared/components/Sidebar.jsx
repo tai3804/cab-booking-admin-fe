@@ -1,7 +1,19 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState } from 'react';
-import { LayoutDashboard, Users, Car, LogOut, ChevronLeft, ChevronRight, Compass, DollarSign, Key, BarChart3 } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Users,
+  Car,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Compass,
+  DollarSign,
+  Key,
+  BarChart3,
+  BookOpen,
+} from 'lucide-react';
 import { selectCurrentUser, clearCredentials } from '../../features/auth/store/authSlice';
 import api from '../../services/api';
 
@@ -26,15 +38,15 @@ const Sidebar = () => {
 
   const menuItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/users', icon: Users, label: 'Quản lý Users' },
-    { to: '/drivers', icon: Car, label: 'Quản lý Drivers' },
-    { to: '/pricing', icon: DollarSign, label: 'Quản lý Pricing' },
-    { to: '/statistics', icon: BarChart3, label: 'Thống kê' },
+    { to: '/users', icon: Users, label: 'Quan ly Users' },
+    { to: '/drivers', icon: Car, label: 'Quan ly Drivers' },
+    { to: '/bookings', icon: BookOpen, label: 'Booking Admin' },
+    { to: '/pricing', icon: DollarSign, label: 'Quan ly Pricing' },
+    { to: '/statistics', icon: BarChart3, label: 'Thong ke' },
   ];
 
   return (
     <>
-      {/* Mobile overlay */}
       <div
         className={`fixed inset-0 bg-white/80 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${
           isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
@@ -42,7 +54,6 @@ const Sidebar = () => {
         onClick={() => setIsCollapsed(true)}
       />
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed lg:relative z-50 h-screen flex flex-col
@@ -51,22 +62,19 @@ const Sidebar = () => {
           ${isCollapsed ? 'w-[72px]' : 'w-[260px]'}
         `}
       >
-        {/* Logo & Collapse Toggle */}
-        <div className="flex items-center justify-between p-5 border-b border-border-light bg-gradient-to-r from-accent-primary/5 to-transparent">
-          {/* Logo */}
+        <div className="flex items-center justify-between border-b border-border-light bg-gradient-to-r from-accent-primary/5 to-transparent p-5">
           <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'w-full justify-center' : ''}`}>
-            <div className="w-9 h-9 rounded-lg bg-accent-primary/10 border border-accent-primary/20 flex items-center justify-center flex-shrink-0">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-accent-primary/20 bg-accent-primary/10">
               <Compass size={18} strokeWidth={1.5} className="text-accent-hover" />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col leading-tight">
-                <span className="text-[13px] font-bold tracking-widest text-text-primary uppercase">Cab</span>
-                <span className="text-[11px] font-medium tracking-wider text-accent-primary uppercase">Admin</span>
+                <span className="text-[13px] font-bold uppercase tracking-widest text-text-primary">Cab</span>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-accent-primary">Admin</span>
               </div>
             )}
           </div>
 
-          {/* Collapse toggle */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={`
@@ -81,8 +89,7 @@ const Sidebar = () => {
           </button>
         </div>
 
-        {/* Navigation Menu */}
-        <nav className="flex-1 py-5 px-3 space-y-1.5 overflow-y-auto">
+        <nav className="flex-1 space-y-1.5 overflow-y-auto px-3 py-5">
           {menuItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
@@ -101,14 +108,12 @@ const Sidebar = () => {
               <Icon size={16} strokeWidth={1.75} className="flex-shrink-0" />
               {!isCollapsed && <span>{label}</span>}
 
-              {/* Active left indicator */}
               {isCollapsed && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-accent-primary rounded-r-full" />
+                <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-accent-primary" />
               )}
 
-              {/* Tooltip for collapsed state */}
               {isCollapsed && (
-                <div className="absolute left-full ml-3 px-3 py-2 bg-surface-elevated border border-border-light rounded-lg text-sm font-medium text-text-primary whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-card z-50">
+                <div className="absolute left-full z-50 ml-3 invisible whitespace-nowrap rounded-lg border border-border-light bg-surface-elevated px-3 py-2 text-sm font-medium text-text-primary opacity-0 shadow-card transition-all duration-200 group-hover:visible group-hover:opacity-100">
                   {label}
                   <div className="absolute right-full top-1/2 -translate-y-1/2 border-8 border-transparent border-r-surface-elevated" />
                 </div>
@@ -117,49 +122,52 @@ const Sidebar = () => {
           ))}
         </nav>
 
-        {/* Footer: Profile Card + Logout */}
-        <div className={`p-3 border-t border-border-light bg-gradient-to-t from-surface-active/40 to-transparent space-y-2 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
-          {/* Profile Card */}
-          <div className="relative">{/* relative container so menu overlays without shifting layout */}
+        <div className={`border-t border-border-light bg-gradient-to-t from-surface-active/40 to-transparent p-3 space-y-2 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
+          <div className="relative">
             <div
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border border-border-light bg-white shadow-sm cursor-pointer ${isCollapsed ? 'w-12 h-12 justify-center px-0 py-0' : ''}`}
+              className={`flex cursor-pointer items-center gap-3 rounded-xl border border-border-light bg-white px-3.5 py-3 shadow-sm ${isCollapsed ? 'h-12 w-12 justify-center px-0 py-0' : ''}`}
             >
-            <div className="w-9 h-9 rounded-full bg-accent-primary/10 border border-accent-primary/25 flex items-center justify-center font-semibold text-accent-primary text-sm flex-shrink-0">
-              {currentUser?.fullName?.charAt(0) || 'A'}
-            </div>
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-text-primary truncate leading-tight">
-                  {currentUser?.fullName || 'System Admin'}
-                </p>
-                <p className="text-[10px] text-text-muted uppercase tracking-[0.14em] mt-0.5">
-                  {currentUser?.role || 'ADMIN'}
-                </p>
+              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-accent-primary/25 bg-accent-primary/10 text-sm font-semibold text-accent-primary">
+                {currentUser?.fullName?.charAt(0) || 'A'}
               </div>
-            )}
+              {!isCollapsed && (
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold leading-tight text-text-primary">
+                    {currentUser?.fullName || 'System Admin'}
+                  </p>
+                  <p className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-text-muted">
+                    {currentUser?.role || 'ADMIN'}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Profile menu (toggles when clicking profile card) - absolute overlay so it doesn't move the profile text */}
             {showProfileMenu && (
-              <div className={`absolute z-50 ${isCollapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'} bottom-14`}>
-                <div className="bg-white border border-border-light rounded-xl shadow-sm p-2 flex flex-col gap-2 w-44">
+              <div className={`absolute bottom-14 z-50 ${isCollapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'}`}>
+                <div className="flex w-44 flex-col gap-2 rounded-xl border border-border-light bg-white p-2 shadow-sm">
                   {currentUser?.role === 'ADMIN' && (
                     <button
-                      onClick={() => { setShowProfileMenu(false); navigate('/change-password'); }}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:bg-surface-elevated rounded-md"
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        navigate('/change-password');
+                      }}
+                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-secondary hover:bg-surface-elevated"
                     >
                       <Key size={14} />
-                      <span>Đổi mật khẩu</span>
+                      <span>Doi mat khau</span>
                     </button>
                   )}
 
                   <button
-                    onClick={() => { setShowProfileMenu(false); handleLogout(); }}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:bg-surface-elevated rounded-md"
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      handleLogout();
+                    }}
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-secondary hover:bg-surface-elevated"
                   >
                     <LogOut size={14} />
-                    <span>Đăng xuất</span>
+                    <span>Dang xuat</span>
                   </button>
                 </div>
               </div>
@@ -168,15 +176,13 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      {/* Mobile menu toggle button */}
       <button
         onClick={() => setIsCollapsed(false)}
         className={`
           fixed bottom-4 left-4 z-30 lg:hidden
-          w-12 h-12 rounded-xl bg-surface border border-accent-primary/30 text-accent-hover
-          flex items-center justify-center shadow-accent
+          flex h-12 w-12 items-center justify-center rounded-xl border border-accent-primary/30 bg-surface text-accent-hover shadow-accent
           transition-all duration-300
-          ${!isCollapsed ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'}
+          ${!isCollapsed ? 'pointer-events-none scale-75 opacity-0' : 'scale-100 opacity-100'}
         `}
       >
         <Compass size={18} strokeWidth={1.5} />
